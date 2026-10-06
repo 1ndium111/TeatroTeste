@@ -74,8 +74,24 @@ def alternar_assento(btn):
         btn.config(bg='#2FA572', fg="white")
         nome.remove(btn['text'])
 
-def reservar(a):
+def reservar1(j):
     messagebox.showinfo("Reserva concluída!", f"Os seguintes assentos foram reservados: \n{nome}")
+    conex = psycopg.connect(**DB_CONFIG)
+    cur = conex.cursor()
+    for elemento in j:
+        fila = elemento[0]
+        coluna = elemento[1]
+        query = "UPDATE assentos_sala1 SET ocupado = true WHERE fila = %s AND numero_cadeira = %s"
+
+def reservar2(k):
+    messagebox.showinfo("Reserva concluída!", f"Os seguintes assentos foram reservados: \n{nome}")
+    conex = psycopg.connect(**DB_CONFIG)
+    cur = conex.cursor()
+
+def reservar3(l):
+    messagebox.showinfo("Reserva concluída!", f"Os seguintes assentos foram reservados: \n{nome}")
+    conex = psycopg.connect(**DB_CONFIG)
+    cur = conex.cursor()
 
 def sumirtudo():
     frame_menu.pack_forget()
