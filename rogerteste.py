@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from tkinter import ttk  # NOVO: usado na tabela do histórico
+from tkinter import ttk 
 from PIL import Image, ImageTk
 import psycopg
 
@@ -45,11 +45,11 @@ def criar_botoes_sala1():
             b1.grid(row=f_idx + 1, column=c_idx, padx=4, pady=4)
 
 def criar_botoes_sala2():
-    # Remove todos os widgets (botões) existentes dentro do frame_assentos para evitar duplicação
+    
     for widget in frame_assentos2.winfo_children():
         widget.destroy()
         
-    # Busca o status mais atualizado do banco de dados
+    
     global assentos_no_banco2
     assentos_no_banco2 = buscar_assentos_ocupados_sala2()
 
@@ -64,9 +64,9 @@ def criar_botoes_sala2():
             esta_ocupado2 = assentos_no_banco2.get(nome_assento2)
             
             if esta_ocupado2:
-                cor_fundo = '#FF0000'  # Vermelho (Ocupado)
+                cor_fundo = '#FF0000'  
             else:
-                cor_fundo = '#2FA572'  # Verde (Disponível)
+                cor_fundo = '#2FA572'  
                 
             cor_texto = '#FFFFFF'
             
@@ -75,11 +75,9 @@ def criar_botoes_sala2():
             b2.grid(row=f_idx2 + 1, column=c_idx2, padx=4, pady=4)
 
 def criar_botoes_sala3():
-    # Remove todos os widgets (botões) existentes dentro do frame_assentos para evitar duplicação
     for widget in frame_assentos3.winfo_children():
         widget.destroy()
         
-    # Busca o status mais atualizado do banco de dados
     global assentos_no_banco3
     assentos_no_banco3 = buscar_assentos_ocupados_sala3()
 
@@ -94,9 +92,9 @@ def criar_botoes_sala3():
             esta_ocupado3 = assentos_no_banco3.get(nome_assento3)
             
             if esta_ocupado3:
-                cor_fundo = '#FF0000'  # Vermelho (Ocupado)
+                cor_fundo = '#FF0000'  
             else:
-                cor_fundo = '#2FA572'  # Verde (Disponível)
+                cor_fundo = '#2FA572'  
                 
             cor_texto = '#FFFFFF'
             
@@ -171,11 +169,6 @@ def alternar_assento(btn):
         if assento_texto in nome:
             nome.remove(assento_texto)
 
-# ---------------------------------------------------------------
-# NOVO: registra um evento (reserva ou cancelamento) na tabela historico.
-# Recebe o cursor já aberto para que o registro entre na mesma
-# transação do UPDATE do assento.
-# ---------------------------------------------------------------
 def registrar_historico(cur, sala, acao, fila, coluna):
     cur.execute(
         "INSERT INTO historico (sala, fila, numero_cadeira, acao) VALUES (%s, %s, %s, %s);",
@@ -192,11 +185,10 @@ def reservar1():
     try:
         with psycopg.connect(**DB_CONFIG) as conex:
             with conex.cursor() as cur:
-                # ALTERADO: só atualiza se o assento ainda estiver livre
                 query = "UPDATE assentos_sala1 SET ocupado = true WHERE fila = %s AND numero_cadeira = %s AND ocupado = false;"
                 for fila, coluna in assentos_para_reservar:
                     cur.execute(query, (fila, coluna))
-                    if cur.rowcount > 0:  # NOVO: só registra se realmente mudou
+                    if cur.rowcount > 0:
                         registrar_historico(cur, 1, "RESERVA", fila, coluna)
                 conex.commit()
         
@@ -217,15 +209,15 @@ def reservar2():
     try:
         with psycopg.connect(**DB_CONFIG) as conex:
             with conex.cursor() as cur:
-                # ALTERADO: só atualiza se o assento ainda estiver livre
+                
                 query = "UPDATE assentos_sala2 SET ocupado = true WHERE fila = %s AND numero_cadeira = %s AND ocupado = false;"
                 for fila, coluna in assentos_para_reservar:
                     cur.execute(query, (fila, coluna))
-                    if cur.rowcount > 0:  # NOVO: só registra se realmente mudou
+                    if cur.rowcount > 0:  
                         registrar_historico(cur, 2, "RESERVA", fila, coluna)
                 conex.commit()
         
-        # ALTERADO: a mensagem agora aparece depois do commit
+        
         messagebox.showinfo("Reserva concluída!", f"Os seguintes assentos foram reservados na sala 2: \n{nome}")
         nome.clear()
         irsala2() 
@@ -242,15 +234,14 @@ def reservar3():
     try:
         with psycopg.connect(**DB_CONFIG) as conex:
             with conex.cursor() as cur:
-                # ALTERADO: só atualiza se o assento ainda estiver livre
                 query = "UPDATE assentos_sala3 SET ocupado = true WHERE fila = %s AND numero_cadeira = %s AND ocupado = false;"
                 for fila, coluna in assentos_para_reservar:
                     cur.execute(query, (fila, coluna))
-                    if cur.rowcount > 0:  # NOVO: só registra se realmente mudou
+                    if cur.rowcount > 0:
                         registrar_historico(cur, 3, "RESERVA", fila, coluna)
                 conex.commit()
         
-        # ALTERADO: a mensagem agora aparece depois do commit
+        
         messagebox.showinfo("Reserva concluída!", f"Os seguintes assentos foram reservados na sala 3: \n{nome}")
         nome.clear()
         irsala3() 
@@ -267,15 +258,15 @@ def cancelar1():
     try:
         with psycopg.connect(**DB_CONFIG) as conex:
             with conex.cursor() as cur:
-                # ALTERADO: só atualiza se o assento ainda estiver ocupado
+                
                 query = "UPDATE assentos_sala1 SET ocupado = false WHERE fila = %s AND numero_cadeira = %s AND ocupado = true;"
                 for fila, coluna in assentos_para_cancelar:
                     cur.execute(query, (fila, coluna))
-                    if cur.rowcount > 0:  # NOVO: só registra se realmente mudou
+                    if cur.rowcount > 0:  
                         registrar_historico(cur, 1, "CANCELAMENTO", fila, coluna)
                 conex.commit()
         
-        # ALTERADO: a mensagem agora aparece depois do commit
+        
         messagebox.showinfo("Cancelamento concluído!", f"Os seguintes assentos foram cancelados na sala 1: \n{nome}")
         nome.clear()
         irsala1() 
@@ -293,15 +284,15 @@ def cancelar2():
     try:
         with psycopg.connect(**DB_CONFIG) as conex:
             with conex.cursor() as cur:
-                # ALTERADO: só atualiza se o assento ainda estiver ocupado
+                
                 query = "UPDATE assentos_sala2 SET ocupado = false WHERE fila = %s AND numero_cadeira = %s AND ocupado = true;"
                 for fila, coluna in assentos_para_cancelar:
                     cur.execute(query, (fila, coluna))
-                    if cur.rowcount > 0:  # NOVO: só registra se realmente mudou
+                    if cur.rowcount > 0:  
                         registrar_historico(cur, 2, "CANCELAMENTO", fila, coluna)
                 conex.commit()
         
-        # ALTERADO: a mensagem agora aparece depois do commit
+        
         messagebox.showinfo("Cancelamento concluído!", f"Os seguintes assentos foram cancelados na sala 2: \n{nome}")
         nome.clear()
         irsala2()
@@ -319,15 +310,14 @@ def cancelar3():
     try:
         with psycopg.connect(**DB_CONFIG) as conex:
             with conex.cursor() as cur:
-                # ALTERADO: só atualiza se o assento ainda estiver ocupado
                 query = "UPDATE assentos_sala3 SET ocupado = false WHERE fila = %s AND numero_cadeira = %s AND ocupado = true;"
                 for fila, coluna in assentos_para_cancelar:
                     cur.execute(query, (fila, coluna))
-                    if cur.rowcount > 0:  # NOVO: só registra se realmente mudou
+                    if cur.rowcount > 0:  
                         registrar_historico(cur, 3, "CANCELAMENTO", fila, coluna)
                 conex.commit()
         
-        # ALTERADO: a mensagem agora aparece depois do commit
+        
         messagebox.showinfo("Cancelamento concluído!", f"Os seguintes assentos foram cancelados na sala 3: \n{nome}")
         nome.clear()
         irsala3()
@@ -335,9 +325,7 @@ def cancelar3():
     except Exception as errorC:
         print(f"Perdão! Erro ao cancelar assentos na database: {errorC}")
 
-# ---------------------------------------------------------------
-# NOVO: busca os eventos no banco e preenche a tabela do histórico
-# ---------------------------------------------------------------
+
 def carregar_historico():
     for item in tabela_historico.get_children():
         tabela_historico.delete(item)
@@ -365,7 +353,7 @@ def sumirtudo():
     frame_sala1.pack_forget()
     frame_sala2.pack_forget()
     frame_sala3.pack_forget()
-    frame_historico.pack_forget()  # NOVO
+    frame_historico.pack_forget() 
 
 def irmenu():
     sumirtudo()
@@ -389,7 +377,6 @@ def irsala3():
     criar_botoes_sala3()
     frame_sala3.pack(fill="both", expand=True)
 
-# NOVO
 def irhistorico():
     sumirtudo()
     carregar_historico()
@@ -413,17 +400,17 @@ frame_menu.pack(fill="both", expand=True)
 titulo_menu = tk.Label(frame_menu, text="Gerenciador de Cinema", font=("Comic Sans MS", 14), fg="#FF0000")
 titulo_menu.place(x=395, y=30)
 
-botao1menu = tk.Button(frame_menu, text="Ir para a sala 1", bg="#0CB6A8", fg="#FFFFFF", command=irsala1)
+botao1menu = tk.Button(frame_menu, text="Ir para a sala 1", bg="#1F10E9", fg="#FFFFFF", command=irsala1)
 botao1menu.place(x=500, y=100)
 
-botao2menu = tk.Button(frame_menu, text="Ir para a sala 2", bg="#0CB6A8", fg="#FFFFFF", command=irsala2)
+botao2menu = tk.Button(frame_menu, text="Ir para a sala 2", bg="#1F10E9", fg="#FFFFFF", command=irsala2)
 botao2menu.place(x=500, y=130)
 
-botao3menu = tk.Button(frame_menu, text="Ir para a sala 3", bg="#0CB6A8", fg="#FFFFFF", command=irsala3)
+botao3menu = tk.Button(frame_menu, text="Ir para a sala 3", bg="#1F10E9", fg="#FFFFFF", command=irsala3)
 botao3menu.place(x=500, y=160)
 
-# NOVO: botão que abre a tela de histórico
-botaohistoricomenu = tk.Button(frame_menu, text="Ver histórico", bg="#0CB6A8", fg="#FFFFFF", command=irhistorico)
+
+botaohistoricomenu = tk.Button(frame_menu, text="Ver histórico", bg="#1F10E9", fg="#FFFFFF", command=irhistorico)
 botaohistoricomenu.place(x=500, y=190)
 
 frame_sala1 = tk.Frame(app)
@@ -444,7 +431,7 @@ frame_assentos.place(x = 140, y = 190)
 filas = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 colunas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
-botao1sala1 = tk.Button(frame_sala1, text="Voltar ao menu", bg="#10D0E9", fg="#FFFFFF", command=irmenu)
+botao1sala1 = tk.Button(frame_sala1, text="Voltar ao menu", bg="#1F10E9", fg="#FFFFFF", command=irmenu)
 botao1sala1.place(x=600, y=130)
 botaocancelar1 = tk.Button(frame_sala1, text="Cancelar", bg="#E41515", fg="#FFFFFF", command=cancelar1)
 botaocancelar1.place(x=600, y=100)
@@ -487,7 +474,7 @@ for f_idx2 in range(len(filas2)):
         b2.config(command=lambda a=b2: alternar_assento(a))
         b2.grid(row=f_idx2 + 1, column=c_idx2, padx=4, pady=4)
 
-botao1sala2 = tk.Button(frame_sala2, text="Voltar ao menu", bg="#10D0E9", fg="#FFFFFF", command=irmenu)
+botao1sala2 = tk.Button(frame_sala2, text="Voltar ao menu", bg="#1F10E9", fg="#FFFFFF", command=irmenu)
 botao1sala2.place(x=600, y=130)
 botaocancelar2 = tk.Button(frame_sala2, text="Cancelar", bg="#E41515", fg="#FFFFFF", command=cancelar2)
 botaocancelar2.place(x=600, y=100)
@@ -530,22 +517,19 @@ for f_idx3 in range(len(filas3)):
         b3.config(command=lambda c=b3: alternar_assento(c))
         b3.grid(row=f_idx3 + 1, column=c_idx3, padx=4, pady=4)
 
-botao1sala3 = tk.Button(frame_sala3, text="Voltar ao menu", bg="#10D0E9", fg="#FFFFFF", command=irmenu)
+botao1sala3 = tk.Button(frame_sala3, text="Voltar ao menu", bg="#1F10E9", fg="#FFFFFF", command=irmenu)
 botao1sala3.place(x=600, y=130)
 botaocancelar3 = tk.Button(frame_sala3, text="Cancelar", bg="#E41515", fg="#FFFFFF", command=cancelar3)
 botaocancelar3.place(x=600, y=100)
 botaoreservar3 = tk.Button(frame_sala3, text="Reservar", bg="#2A9733", fg="#FFFFFF", command=reservar3)
 botaoreservar3.place(x=600, y=70)
 
-# ---------------------------------------------------------------
-# NOVO: tela do histórico de reservas e cancelamentos
-# ---------------------------------------------------------------
 frame_historico = tk.Frame(app)
 
 titulo_historico = tk.Label(frame_historico, text="Histórico de Reservas e Cancelamentos", font=("Comic Sans MS", 14))
 titulo_historico.pack(pady=15)
 
-botao_voltar_historico = tk.Button(frame_historico, text="Voltar ao menu", bg="#10D0E9", fg="#FFFFFF", command=irmenu)
+botao_voltar_historico = tk.Button(frame_historico, text="Voltar ao menu", bg="#1F10E9", fg="#FFFFFF", command=irmenu)
 botao_voltar_historico.pack(side="bottom", pady=10)
 
 frame_tabela_historico = tk.Frame(frame_historico)
